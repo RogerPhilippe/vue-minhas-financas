@@ -38,7 +38,7 @@
         <div class="py-3" id="financasView"></div>
 
         <div class="list-group">
-            <div class="list-group-item" v-for="(item, index) in listaFinancas" v-bind:key="index">
+            <div class="list-group-item">
                 <table class="table">
                     <thead>
                         <tr>
@@ -49,7 +49,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        <tr v-for="(item, index) in listaFinancas" v-bind:key="index">
                             <td>{{item.description}}</td>
                             <td>{{item.date}}</td>
                             <td>{{item.quant}}</td>
