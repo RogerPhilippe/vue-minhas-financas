@@ -6,7 +6,7 @@
             <h1 class="h2 py-2">{{ title }}</h1>
         </div>
         <div class="text-center">
-            <button type="button" class="btn btn-primary">Importar</button>
+            <button type="button" v-on:click="request" class="btn btn-primary">Importar</button>
             <button type="button" class="btn btn-primary">Apagar</button>
         </div>
 
@@ -35,8 +35,6 @@
 
         <input type="submit" v-on:click="addFinanca" name="Enviar" id="" class="btn btn-primary"/>
 
-        <div class="py-3" id="financasView"></div>
-
         <div class="list-group">
             <div class="list-group-item">
                 <table class="table">
@@ -49,11 +47,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in listaFinancas" v-bind:key="index">
-                            <td>{{item.description}}</td>
-                            <td>{{item.date}}</td>
-                            <td>{{item.quant}}</td>
-                            <td>{{item.value}}</td>
+                        <tr v-for="(financa, index) in listaFinancas" v-bind:key="index">
+                            <td>{{financa.item}}</td>
+                            <td>{{financa.data}}</td>
+                            <td>{{financa.total}}</td>
+                            <td>{{financa.valor}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -65,11 +63,16 @@
 
 <script>
 
+import { FinancaService } from '../services/FinancaService'
+import { Financa } from '../models/Financa'
+import { DateHelper } from '../helpers/DateHelper'
+
 export default {
+
     data() {
         return {
             title: 'Minhas finanças',
-            notification: 'Finança adicionada',
+            notification: '',
             notificationMustShow: false,            
             financa: {
                 description: '',
@@ -84,22 +87,40 @@ export default {
         }
     },
     methods: {
+
         addFinanca() {
-            const financa = {
-                description: this.financa.description,
-                date: this.financa.date,
-                value: this.financa.value,
-                quant: this.financa.quant
-            }
+            const financa = new Financa(
+                this.financa.description,
+                DateHelper.textoParaData(this.financa.date),
+                this.financa.quant,
+                this.financa.value
+            )
 
             this.listaFinancas.push(financa)
 
             this.notificationMustShow = true
+            this.notification = 'Finança adicionada'
 
             this.financa.description = '',
             this.financa.date = '',
             this.financa.value = '',
             this.financa.quant = ''
+        },
+        request() {
+            console.log('Request')
+            new FinancaService().getFinancasSemana()
+            .then(financas => { 
+                this.notificationMustShow = true
+                this.notification = 'Finanças importadas'
+                financas.map(
+                    financa => {
+                        this.listaFinancas.push(financa)
+                    }
+                )
+            })
+            .catch(error => { 
+                console.log(error) 
+            })
         }
     }
 }
